@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Test de Escudos de Belén ✨🎀</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Quicksand & Fredoka -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coquette: {
+              50: '#fff5f7',
+              100: '#ffe4ec',
+              200: '#fecddc',
+              300: '#fda4be',
+              400: '#fb719b',
+              500: '#f43f77',
+              600: '#e11d62',
+              cream: '#fffdfa',
+              lilac: '#ede9fe',
+              lilacDark: '#a855f7',
+              gold: '#fef08a',
+            }
+          },
+          fontFamily: {
+            title: ['Fredoka', 'sans-serif'],
+            body: ['Quicksand', 'sans-serif']
+          },
+          boxShadow: {
+            'pink-glow': '0 8px 30px rgba(244, 63, 119, 0.2)',
+            'card-soft': '0 10px 25px -5px rgba(251, 113, 155, 0.15), 0 8px 10px -6px rgba(251, 113, 155, 0.1)',
+            'coquette-btn': '0 6px 0 #e11d62',
+            'check-btn': '0 6px 0 #15803d',
+            'cross-btn': '0 6px 0 #be123c',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #fff5f7;
+      background-image: 
+        radial-gradient(#fecddc 1px, transparent 1px),
+        radial-gradient(#fecddc 1px, #fff5f7 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* Estilos scrollbar coquette */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #ffe4ec;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #fb719b;
+      border-radius: 9999px;
+    }
+
+    @keyframes floatBow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    .animate-float {
+      animation: floatBow 3s ease-in-out infinite;
+    }
+    .perspective-card {
+      perspective: 1000px;
+    }
+  </style>
+</head>
+<body class="text-stone-700 min-h-screen flex flex-col antialiased selection:bg-pink-300 selection:text-white">
+
+  <!-- ================= ENCABEZADO CUTE ================= -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b-2 border-pink-200 sticky top-0 z-40 shadow-sm transition-all">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo y Título -->
+      <div class="flex items-center gap-3">
+        <span class="text-3xl animate-float filter drop-shadow">🎀</span>
+        <div>
+          <h1 class="font-title text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent flex items-center gap-1.5">
+            El Test de Escudos de Belén <span class="text-pink-400 text-lg">✨</span>
+          </h1>
+          <p class="text-xs text-pink-500 font-semibold tracking-wide">150 escudos de fútbol • Edición Coquette 🌸</p>
+        </div>
+      </div>
+
+      <!-- Métricas rápidas y botón reinicio -->
+      <div class="flex items-center gap-3 ml-auto">
+        <div class="bg-pink-50 border border-pink-200 px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs font-bold text-pink-700">
+          <span class="flex items-center text-emerald-600 gap-1">✅ <span id="headerCorrectCount">0</span></span>
+          <span class="text-pink-300">|</span>
+          <span class="flex items-center text-rose-500 gap-1">❌ <span id="headerWrongCount">0</span></span>
+          <span class="text-pink-300">|</span>
+          <span class="text-purple-600 font-extrabold" id="headerPercent">0%</span>
+        </div>
+
+        <button onclick="openResetModal()" title="Reiniciar progreso" class="p-2 rounded-xl bg-pink-100 hover:bg-pink-200 text-pink-600 transition-colors active:scale-95 text-xs font-semibold flex items-center gap-1 border border-pink-200">
+          🔄 <span class="hidden sm:inline">Reiniciar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de progreso general -->
+    <div class="w-full bg-pink-100 h-2 relative overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 transition-all duration-500 ease-out" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENEDOR PRINCIPAL ================= -->
+  <main class="flex-grow max-w-6xl mx-auto px-4 py-6 w-full">
+
+    <!-- Navegación de Modos de Juego -->
+    <div class="flex justify-center mb-6">
+      <div class="bg-white/90 p-1.5 rounded-2xl border-2 border-pink-200 shadow-sm flex gap-2">
+        <button id="tabFlashcardBtn" onclick="switchView('flashcard')" class="px-5 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md">
+          <span>🎀</span> Flashcard (1 a 1)
+        </button>
+        <button id="tabAlbumBtn" onclick="switchView('album')" class="px-5 py-2 rounded-xl font-bold text-sm text-pink-600 hover:bg-pink-50 transition-all flex items-center gap-2">
+          <span>📖</span> Álbum de Stickers (150)
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= VISTA 1: MODO FLASHCARD (1 a 1) ================= -->
+    <section id="flashcardView" class="max-w-md mx-auto">
+      
+      <!-- Selector de categoría para el modo Flashcard -->
+      <div class="mb-4 bg-white/70 backdrop-blur-sm p-2 rounded-2xl border border-pink-200 flex items-center justify-between text-xs font-bold text-pink-700">
+        <span class="pl-2">Filtrar para Belén:</span>
+        <select id="flashcardCategorySelect" onchange="changeFlashcardCategory(this.value)" class="bg-pink-50 border border-pink-200 text-pink-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-pink-400 cursor-pointer">
+          <option value="all">💖 Todos (150)</option>
+          <option value="argentina">🇦🇷 Argentinos (40)</option>
+          <option value="latino">🌴 Latinos (25)</option>
+          <option value="seleccion">🌍 Federaciones (35)</option>
+          <option value="europa">🏰 Europeos (50)</option>
+        </select>
+      </div>
+
+      <!-- Tarjeta Principal del Escudo -->
+      <div class="bg-white rounded-3xl border-3 border-pink-200 shadow-card-soft p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden transition-all duration-300">
+        
+        <!-- Moño decorativo superior -->
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-pink-100 text-pink-600 border border-pink-300 text-xs px-3 py-1 rounded-full font-bold shadow-sm flex items-center gap-1">
+          <span id="currentCardIndexBadge">Escudo #1 de 150</span> ✨
+        </div>
+
+        <!-- Etiqueta de Categoría y Estado previo si ya fue respondido -->
+        <div class="w-full flex items-center justify-between mt-3 mb-4 text-xs font-bold">
+          <span id="cardCategoryTag" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full border border-purple-200">
+            Categoría
+          </span>
+          <span id="cardStatusBadge" class="bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full border border-amber-200">
+            Sin responder
+          </span>
+        </div>
+
+        <!-- Marco del Escudo -->
+        <div class="relative group my-2 p-5 bg-gradient-to-b from-pink-50/70 to-rose-50/30 rounded-3xl border-2 border-pink-100 flex items-center justify-center w-56 h-56 shadow-inner">
+          <div class="absolute inset-0 rounded-3xl bg-[radial-gradient(#f472b6_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
+          
+          <img id="cardShieldImg" 
+               src="" 
+               alt="Escudo misterioso" 
+               class="max-w-[160px] max-h-[160px] object-contain filter drop-shadow-md transition-transform duration-300 group-hover:scale-105 z-10"
+               onerror="handleImageFallback(this)">
+        </div>
+
+        <!-- Zona de Revelación del Club -->
+        <div class="w-full min-h-[95px] flex flex-col items-center justify-center mt-3 mb-2">
+          <div id="hiddenNameBox" class="w-full py-3 px-4 bg-pink-50 border-2 border-dashed border-pink-300 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition hover:bg-pink-100/80 active:scale-98" onclick="toggleRevealCard()">
+            <span class="text-xl">🤫</span>
+            <span class="text-pink-600 font-bold text-sm">Toca para descubrir quién es 🎀</span>
+            <span class="text-[11px] text-pink-400">¿Sabés de qué equipo o país es?</span>
+          </div>
+
+          <div id="revealedNameBox" class="w-full py-2.5 px-4 bg-gradient-to-r from-pink-100 via-rose-100 to-purple-100 border-2 border-pink-300 rounded-2xl flex-col items-center justify-center hidden animate-fade-in shadow-inner">
+            <h2 id="cardShieldName" class="font-title text-xl sm:text-2xl font-bold text-pink-800 leading-tight">Nombre del Equipo</h2>
+            <p id="cardShieldDetails" class="text-xs font-semibold text-pink-600 mt-0.5">País / Información extra</p>
+          </div>
+        </div>
+
+        <!-- ================= BOTONES PROTAGONISTAS ================= -->
+        <p class="text-xs font-bold text-pink-400 mt-2 mb-3">¿Lo adivinaste, Belén? Marcá tu respuesta 👇</p>
+        
+        <div class="grid grid-cols-2 gap-4 w-full">
+          <!-- Botón Cruz Roja (No me acordaba) -->
+          <button onclick="handleAnswer(false)" 
+                  class="group flex flex-col items-center justify-center p-3.5 bg-rose-500 hover:bg-rose-600 text-white font-title font-bold rounded-2xl shadow-cross-btn active:translate-y-1 active:shadow-none transition-all duration-150">
+            <span class="text-3xl filter drop-shadow group-hover:scale-110 transition-transform">❌</span>
+            <span class="text-xs mt-1 tracking-wide uppercase">No me acordaba</span>
+          </button>
+
+          <!-- Botón Tilde Verde (¡Lo sabía!) -->
+          <button onclick="handleAnswer(true)" 
+                  class="group flex flex-col items-center justify-center p-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-title font-bold rounded-2xl shadow-check-btn active:translate-y-1 active:shadow-none transition-all duration-150">
+            <span class="text-3xl filter drop-shadow group-hover:scale-110 transition-transform">✅</span>
+            <span class="text-xs mt-1 tracking-wide uppercase">¡Lo sabía!</span>
+          </button>
+        </div>
+
+        <!-- Navegación auxiliar adelante/atrás -->
+        <div class="flex items-center justify-between w-full mt-5 pt-3 border-t border-pink-100 text-xs font-bold text-pink-500">
+          <button onclick="navigateFlashcard(-1)" class="hover:text-pink-700 flex items-center gap-1 p-1">
+            <span>👈</span> Anterior
+          </button>
+          <button onclick="shuffleCurrentList()" class="hover:text-pink-700 flex items-center gap-1 p-1" title="Mezclar tarjetas">
+            <span>🎲</span> Mezclar
+          </button>
+          <button onclick="navigateFlashcard(1)" class="hover:text-pink-700 flex items-center gap-1 p-1">
+            Siguiente <span>👉</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= VISTA 2: ÁLBUM / CUADRÍCULA (150 Escudos) ================= -->
+    <section id="albumView" class="hidden">
+      
+      <!-- Filtros del Álbum -->
+      <div class="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-pink-200 shadow-sm mb-6 flex flex-wrap gap-4 items-center justify-between">
+        
+        <!-- Categorías -->
+        <div class="flex flex-wrap gap-1.5 items-center">
+          <span class="text-xs font-bold text-pink-400 mr-1">Filtro:</span>
+          <button onclick="filterAlbumCategory('all', this)" class="album-cat-btn active-cat bg-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-pink-500 transition-all shadow-sm">
+            💖 Todos (150)
+          </button>
+          <button onclick="filterAlbumCategory('argentina', this)" class="album-cat-btn bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-pink-200 transition-all">
+            🇦🇷 Argentinos (40)
+          </button>
+          <button onclick="filterAlbumCategory('latino', this)" class="album-cat-btn bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-pink-200 transition-all">
+            🌴 Latinos (25)
+          </button>
+          <button onclick="filterAlbumCategory('seleccion', this)" class="album-cat-btn bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-pink-200 transition-all">
+            🌍 Federaciones (35)
+          </button>
+          <button onclick="filterAlbumCategory('europa', this)" class="album-cat-btn bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-pink-200 transition-all">
+            🏰 Europeos (50)
+          </button>
+        </div>
+
+        <!-- Filtro por Estado (Completados vs Pendientes) -->
+        <div class="flex items-center gap-1.5">
+          <label for="albumStatusSelect" class="text-xs font-bold text-pink-400">Estado:</label>
+          <select id="albumStatusSelect" onchange="renderAlbumGrid()" class="bg-pink-50 border border-pink-200 text-pink-700 text-xs font-bold rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-pink-400 cursor-pointer">
+            <option value="all">Mostrar todos</option>
+            <option value="correct">✅ Solo Acertados</option>
+            <option value="wrong">❌ Solo Para Repasar</option>
+            <option value="pending">⏳ Solo Sin Responder</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Barra de resumen de categorías -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white p-3 rounded-2xl border border-pink-200 flex items-center gap-3">
+          <span class="text-2xl">🇦🇷</span>
+          <div>
+            <div class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Argentinos</div>
+            <div class="text-sm font-bold text-pink-700" id="statArg">0 / 40</div>
+          </div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-pink-200 flex items-center gap-3">
+          <span class="text-2xl">🌴</span>
+          <div>
+            <div class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Latinos</div>
+            <div class="text-sm font-bold text-pink-700" id="statLat">0 / 25</div>
+          </div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-pink-200 flex items-center gap-3">
+          <span class="text-2xl">🌍</span>
+          <div>
+            <div class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Federaciones</div>
+            <div class="text-sm font-bold text-pink-700" id="statSel">0 / 35</div>
+          </div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-pink-200 flex items-center gap-3">
+          <span class="text-2xl">🏰</span>
+          <div>
+            <div class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Europeos</div>
+            <div class="text-sm font-bold text-pink-700" id="statEur">0 / 50</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de Escudos -->
+      <div id="shieldsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <!-- Renderizado dinámicamente con JavaScript -->
+      </div>
+      
+      <!-- Mensaje cuando un filtro da vacío -->
+      <div id="emptyFilterMsg" class="hidden text-center py-16 bg-white/70 rounded-3xl border-2 border-dashed border-pink-200">
+        <span class="text-4xl">🌸</span>
+        <h3 class="font-title text-lg font-bold text-pink-700 mt-2">¡No hay escudos en este filtro!</h3>
+        <p class="text-xs text-pink-400">Probá seleccionando "Todos" o cambiando el estado.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL DE REINICIO CUTE ================= -->
+  <div id="resetModal" class="fixed inset-0 bg-pink-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border-3 border-pink-300 max-w-sm w-full p-6 text-center shadow-pink-glow transform transition-all scale-100">
+      <div class="w-16 h-16 mx-auto mb-3 bg-pink-100 rounded-full flex items-center justify-center text-3xl animate-bounce">
+        🎀
+      </div>
+      <h3 class="font-title text-xl font-bold text-pink-700 mb-1">¿Reiniciar el test de Belén?</h3>
+      <p class="text-xs text-pink-500 mb-5">
+        Se borrarán todas las tildes y cruces marcadas para que puedas empezar a jugar de nuevo desde cero.
+      </p>
+      <div class="flex gap-2">
+        <button onclick="closeResetModal()" class="w-1/2 py-2.5 rounded-xl border border-pink-200 font-bold text-xs text-pink-600 hover:bg-pink-50 transition">
+          Cancelar
+        </button>
+        <button onclick="confirmResetProgress()" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-xs shadow-md hover:from-pink-600 hover:to-rose-600 transition">
+          Sí, reiniciar ✨
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PIE DE PÁGINA ================= -->
+  <footer class="mt-auto py-5 text-center text-xs text-pink-400 font-semibold border-t border-pink-200 bg-white/50 backdrop-blur-sm">
+    <p>Hecho con mucho amor para <strong class="text-pink-600">Belén</strong> 💖 • Fútbol & Coquette Vibes ✨</p>
+  </footer>
+
+  <!-- ================= LÓGICA DE JUEGO & BASE DE DATOS DE 150 ESCUDOS ================= -->
+  <script>
+    /* -------------------------------------------------------------
+       AUDIO ENGINE CON WEB AUDIO API (Soniditos dulces y coquette)
+    ------------------------------------------------------------- */
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playSuccess() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          
+          // Arpegio brillante y dulce (C6, E6, G6, C7)
+          const notes = [1046.50, 1318.51, 1567.98, 2093.00];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+            
+            gain.gain.setValueAtTime(0.001, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.2, now + idx * 0.06 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.06 + 0.28);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.3);
+          });
+        } catch(e) { /* silencioso si el navegador bloquea audio */ }
+      },
+      playMistake() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          // Sonido "oopsie" dulce y gentil tipo marimba grave descendente
+          const notes = [392.00, 311.13]; // G4 to Eb4
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+            
+            gain.gain.setValueAtTime(0.001, now + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.12 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 0.22);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(now + idx * 0.12);
+            osc.stop(now + idx * 0.12 + 0.25);
+          });
+        } catch(e) { }
+      },
+      playPop() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.06);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch(e) {}
+      }
+    };
+
+    /* -------------------------------------------------------------
+       BASE DE DATOS COMPLETA: EXACTAMENTE 150 ESCUDOS
+       - 40 Argentinos
+       - 25 Latinos
+       - 35 Selecciones
+       - 50 Europeos
+    ------------------------------------------------------------- */
+    const TEAMS_DATABASE = [
+      // ================= 40 ARGENTINOS =================
+      { id: 1, name: "Boca Juniors", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/001_boca_juniors.svg" },
+      { id: 2, name: "River Plate", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/002_river_plate.svg" },
+      { id: 3, name: "Racing Club", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/003_racing_club.svg" },
+      { id: 4, name: "Independiente", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/004_independiente.svg" },
+      { id: 5, name: "San Lorenzo", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/005_san_lorenzo.svg" },
+      { id: 6, name: "Vélez Sarsfield", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/006_v_lez_sarsfield.png" },
+      { id: 7, name: "Estudiantes de La Plata", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/007_estudiantes_de_la_plata.svg" },
+      { id: 8, name: "Gimnasia y Esgrima La Plata", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/008_gimnasia_y_esgrima_la_plata.png" },
+      { id: 9, name: "Rosario Central", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/009_rosario_central.svg" },
+      { id: 10, name: "Newell's Old Boys", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/010_newell_s_old_boys.png" },
+      { id: 11, name: "Huracán", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/011_hurac_n.png" },
+      { id: 12, name: "Lanús", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/012_lan_s.png" },
+      { id: 13, name: "Banfield", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/013_banfield.png" },
+      { id: 14, name: "Argentinos Juniors", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/014_argentinos_juniors.png" },
+      { id: 15, name: "Colón de Santa Fe", cat: "argentina", desc: "Argentina • Santa Fe", url: "escudos/015_col_n_de_santa_fe.png" },
+      { id: 16, name: "Unión de Santa Fe", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/016_uni_n_de_santa_fe.png" },
+      { id: 17, name: "Talleres de Córdoba", cat: "argentina", desc: "Argentina • Córdoba", url: "escudos/017_talleres_de_c_rdoba.png" },
+      { id: 18, name: "Belgrano de Córdoba", cat: "argentina", desc: "Argentina • Córdoba", url: "escudos/018_belgrano_de_c_rdoba.png" },
+      { id: 19, name: "Instituto de Córdoba", cat: "argentina", desc: "Argentina • Córdoba", url: "escudos/019_instituto_de_c_rdoba.png" },
+      { id: 20, name: "Godoy Cruz", cat: "argentina", desc: "Argentina • Mendoza", url: "escudos/020_godoy_cruz.svg" },
+      { id: 21, name: "Defensa y Justicia", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/021_defensa_y_justicia.svg" },
+      { id: 22, name: "Tigre", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/022_tigre.png" },
+      { id: 23, name: "Platense", cat: "argentina", desc: "Argentina • Liga Profesional", url: "escudos/023_platense.png" },
+      { id: 24, name: "Ferro Carril Oeste", cat: "argentina", desc: "Argentina • Caballito", url: "escudos/024_ferro_carril_oeste.png" },
+      { id: 25, name: "Chacarita Juniors", cat: "argentina", desc: "Argentina • San Martín", url: "escudos/025_chacarita_juniors.png" },
+      { id: 26, name: "Quilmes A.C.", cat: "argentina", desc: "Argentina • Quilmes", url: "escudos/026_quilmes_a_c.png" },
+      { id: 27, name: "Atlanta", cat: "argentina", desc: "Argentina • Villa Crespo", url: "escudos/027_atlanta.png" },
+      { id: 28, name: "All Boys", cat: "argentina", desc: "Argentina • Floresta", url: "escudos/028_all_boys.png" },
+      { id: 29, name: "Nueva Chicago", cat: "argentina", desc: "Argentina • Mataderos", url: "escudos/029_nueva_chicago.png" },
+      { id: 30, name: "Deportivo Morón", cat: "argentina", desc: "Argentina • Morón", url: "escudos/030_deportivo_mor_n.png" },
+      { id: 31, name: "Almirante Brown", cat: "argentina", desc: "Argentina • La Matanza", url: "escudos/031_almirante_brown.png" },
+      { id: 32, name: "Temperley", cat: "argentina", desc: "Argentina • Turdera / Temperley", url: "escudos/032_temperley.png" },
+      { id: 33, name: "San Martín de Tucumán", cat: "argentina", desc: "Argentina • Tucumán", url: "escudos/033_san_mart_n_de_tucum_n.png" },
+      { id: 34, name: "Atlético Tucumán", cat: "argentina", desc: "Argentina • Tucumán", url: "escudos/034_atl_tico_tucum_n.png" },
+      { id: 35, name: "Aldosivi", cat: "argentina", desc: "Argentina • Mar del Plata", url: "escudos/035_aldosivi.png" },
+      { id: 36, name: "Alvarado", cat: "argentina", desc: "Argentina • Mar del Plata", url: "escudos/036_alvarado.png" },
+      { id: 37, name: "Central Córdoba (SdE)", cat: "argentina", desc: "Argentina • Santiago del Estero", url: "escudos/037_central_c_rdoba_sde.png" },
+      { id: 38, name: "Sarmiento de Junín", cat: "argentina", desc: "Argentina • Junín", url: "escudos/038_sarmiento_de_jun_n.png" },
+      { id: 39, name: "Barracas Central", cat: "argentina", desc: "Argentina • Barracas", url: "escudos/039_barracas_central.png" },
+      { id: 40, name: "Deportivo Riestra", cat: "argentina", desc: "Argentina • Villa Soldati", url: "escudos/040_deportivo_riestra.png" },
+
+      // ================= 25 LATINOS =================
+      { id: 41, name: "Flamengo", cat: "latino", desc: "Brasil • Río de Janeiro", url: "escudos/041_flamengo.png" },
+      { id: 42, name: "Palmeiras", cat: "latino", desc: "Brasil • São Paulo", url: "escudos/042_palmeiras.svg" },
+      { id: 43, name: "Corinthians", cat: "latino", desc: "Brasil • São Paulo", url: "escudos/043_corinthians.png" },
+      { id: 44, name: "São Paulo FC", cat: "latino", desc: "Brasil • São Paulo", url: "escudos/044_s_o_paulo_fc.svg" },
+      { id: 45, name: "Santos FC", cat: "latino", desc: "Brasil • Santos", url: "escudos/045_santos_fc.png" },
+      { id: 46, name: "Grêmio", cat: "latino", desc: "Brasil • Porto Alegre", url: "escudos/046_gr_mio.png" },
+      { id: 47, name: "Internacional", cat: "latino", desc: "Brasil • Porto Alegre", url: "escudos/047_internacional.svg" },
+      { id: 48, name: "Fluminense", cat: "latino", desc: "Brasil • Río de Janeiro", url: "escudos/048_fluminense.png" },
+      { id: 49, name: "Peñarol", cat: "latino", desc: "Uruguay • Montevideo", url: "escudos/049_pe_arol.png" },
+      { id: 50, name: "Nacional de Montevideo", cat: "latino", desc: "Uruguay • Montevideo", url: "escudos/050_nacional_de_montevideo.png" },
+      { id: 51, name: "Colo-Colo", cat: "latino", desc: "Chile • Santiago", url: "escudos/051_colo-colo.svg" },
+      { id: 52, name: "Universidad de Chile", cat: "latino", desc: "Chile • Santiago", url: "escudos/052_universidad_de_chile.png" },
+      { id: 53, name: "Universidad Católica", cat: "latino", desc: "Chile • Santiago", url: "escudos/053_universidad_cat_lica.png" },
+      { id: 54, name: "Olimpia", cat: "latino", desc: "Paraguay • Asunción", url: "escudos/054_olimpia.png" },
+      { id: 55, name: "Cerro Porteño", cat: "latino", desc: "Paraguay • Asunción", url: "escudos/055_cerro_porte_o.png" },
+      { id: 56, name: "Atlético Nacional", cat: "latino", desc: "Colombia • Medellín", url: "escudos/056_atl_tico_nacional.png" },
+      { id: 57, name: "Millonarios", cat: "latino", desc: "Colombia • Bogotá", url: "escudos/057_millonarios.png" },
+      { id: 58, name: "América de Cali", cat: "latino", desc: "Colombia • Cali", url: "escudos/058_am_rica_de_cali.png" },
+      { id: 59, name: "Junior de Barranquilla", cat: "latino", desc: "Colombia • Barranquilla", url: "escudos/059_junior_de_barranquilla.png" },
+      { id: 60, name: "Liga de Quito", cat: "latino", desc: "Ecuador • Quito", url: "escudos/060_liga_de_quito.png" },
+      { id: 61, name: "Barcelona SC", cat: "latino", desc: "Ecuador • Guayaquil", url: "escudos/061_barcelona_sc.png" },
+      { id: 62, name: "Alianza Lima", cat: "latino", desc: "Perú • Lima", url: "escudos/062_alianza_lima.png" },
+      { id: 63, name: "Universitario de Deportes", cat: "latino", desc: "Perú • Lima", url: "escudos/063_universitario_de_deportes.png" },
+      { id: 64, name: "Club América", cat: "latino", desc: "México • CDMX", url: "escudos/064_club_am_rica.png" },
+      { id: 65, name: "Chivas de Guadalajara", cat: "latino", desc: "México • Guadalajara", url: "escudos/065_chivas_de_guadalajara.png" },
+
+      // ================= 35 FEDERACIONES / SELECCIONES =================
+      { id: 66, name: "Argentina", cat: "seleccion", desc: "Selección Nacional • Campeón del Mundo ⭐️⭐️⭐️", url: "escudos/066_argentina.png" },
+      { id: 67, name: "Brasil", cat: "seleccion", desc: "Selección Nacional • CBF", url: "escudos/067_brasil.svg" },
+      { id: 68, name: "Uruguay", cat: "seleccion", desc: "Selección Nacional • AUF", url: "escudos/068_uruguay.png" },
+      { id: 69, name: "Colombia", cat: "seleccion", desc: "Selección Nacional • FCF", url: "escudos/069_colombia.png" },
+      { id: 70, name: "Chile", cat: "seleccion", desc: "Selección Nacional • FFCh", url: "escudos/070_chile.png" },
+      { id: 71, name: "España", cat: "seleccion", desc: "Selección Nacional • RFEF", url: "escudos/071_espa_a.png" },
+      { id: 72, name: "Francia", cat: "seleccion", desc: "Selección Nacional • FFF", url: "escudos/072_francia.png" },
+      { id: 73, name: "Italia", cat: "seleccion", desc: "Selección Nacional • FIGC", url: "escudos/073_italia.png" },
+      { id: 74, name: "Alemania", cat: "seleccion", desc: "Selección Nacional • DFB", url: "escudos/074_alemania.png" },
+      { id: 75, name: "Inglaterra", cat: "seleccion", desc: "Selección Nacional • The FA", url: "escudos/075_inglaterra.png" },
+      { id: 76, name: "Portugal", cat: "seleccion", desc: "Selección Nacional • FPF", url: "escudos/076_portugal.png" },
+      { id: 77, name: "Países Bajos", cat: "seleccion", desc: "Selección Nacional • KNVB", url: "escudos/077_pa_ses_bajos.png" },
+      { id: 78, name: "Bélgica", cat: "seleccion", desc: "Selección Nacional • RBFA", url: "escudos/078_b_lgica.png" },
+      { id: 79, name: "Croacia", cat: "seleccion", desc: "Selección Nacional • HNS", url: "escudos/079_croacia.png" },
+      { id: 80, name: "México", cat: "seleccion", desc: "Selección Nacional • FMF", url: "escudos/080_m_xico.png" },
+      { id: 81, name: "Estados Unidos", cat: "seleccion", desc: "Selección Nacional • US Soccer", url: "escudos/081_estados_unidos.png" },
+      { id: 82, name: "Japón", cat: "seleccion", desc: "Selección Nacional • JFA", url: "escudos/082_jap_n.png" },
+      { id: 83, name: "Corea del Sur", cat: "seleccion", desc: "Selección Nacional • KFA", url: "escudos/083_corea_del_sur.png" },
+      { id: 84, name: "Marruecos", cat: "seleccion", desc: "Selección Nacional • FRMF", url: "escudos/084_marruecos.png" },
+      { id: 85, name: "Senegal", cat: "seleccion", desc: "Selección Nacional • FSF", url: "escudos/085_senegal.png" },
+      { id: 86, name: "Nigeria", cat: "seleccion", desc: "Selección Nacional • NFF", url: "escudos/086_nigeria.png" },
+      { id: 87, name: "Camerún", cat: "seleccion", desc: "Selección Nacional • FECAFOOT", url: "escudos/087_camer_n.png" },
+      { id: 88, name: "Australia", cat: "seleccion", desc: "Selección Nacional • Football Australia", url: "escudos/088_australia.svg" },
+      { id: 89, name: "Suecia", cat: "seleccion", desc: "Selección Nacional • SvFF", url: "escudos/089_suecia.png" },
+      { id: 90, name: "Dinamarca", cat: "seleccion", desc: "Selección Nacional • DBU", url: "escudos/090_dinamarca.png" },
+      { id: 91, name: "Polonia", cat: "seleccion", desc: "Selección Nacional • PZPN", url: "escudos/091_polonia.png" },
+      { id: 92, name: "Suiza", cat: "seleccion", desc: "Selección Nacional • ASF-SFV", url: "escudos/092_suiza.png" },
+      { id: 93, name: "Austria", cat: "seleccion", desc: "Selección Nacional • ÖFB", url: "escudos/093_austria.png" },
+      { id: 94, name: "Escocia", cat: "seleccion", desc: "Selección Nacional • SFA", url: "escudos/094_escocia.png" },
+      { id: 95, name: "Turquía", cat: "seleccion", desc: "Selección Nacional • TFF", url: "escudos/095_turqu_a.png" },
+      { id: 96, name: "Grecia", cat: "seleccion", desc: "Selección Nacional • HFF", url: "escudos/096_grecia.png" },
+      { id: 97, name: "Sudáfrica", cat: "seleccion", desc: "Selección Nacional • SAFA", url: "escudos/097_sud_frica.svg" },
+      { id: 98, name: "Costa de Marfil", cat: "seleccion", desc: "Selección Nacional • FIF", url: "escudos/098_costa_de_marfil.png" },
+      { id: 99, name: "Egipto", cat: "seleccion", desc: "Selección Nacional • EFA", url: "escudos/099_egipto.png" },
+      { id: 100, name: "Arabia Saudita", cat: "seleccion", desc: "Selección Nacional • SAFF", url: "escudos/100_arabia_saudita.png" },
+
+      // ================= 50 EUROPEOS =================
+      { id: 101, name: "Real Madrid", cat: "europa", desc: "España • LaLiga", url: "escudos/101_real_madrid.png" },
+      { id: 102, name: "FC Barcelona", cat: "europa", desc: "España • LaLiga", url: "escudos/102_fc_barcelona.png" },
+      { id: 103, name: "Atlético de Madrid", cat: "europa", desc: "España • LaLiga", url: "escudos/103_atl_tico_de_madrid.png" },
+      { id: 104, name: "Athletic Club de Bilbao", cat: "europa", desc: "España • LaLiga", url: "escudos/104_athletic_club_de_bilbao.png" },
+      { id: 105, name: "Sevilla FC", cat: "europa", desc: "España • LaLiga", url: "escudos/105_sevilla_fc.png" },
+      { id: 106, name: "Valencia CF", cat: "europa", desc: "España • LaLiga", url: "escudos/106_valencia_cf.png" },
+      { id: 107, name: "Villarreal CF", cat: "europa", desc: "España • LaLiga", url: "escudos/107_villarreal_cf.png" },
+      { id: 108, name: "Real Sociedad", cat: "europa", desc: "España • LaLiga", url: "escudos/108_real_sociedad.png" },
+      { id: 109, name: "Manchester City", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/109_manchester_city.png" },
+      { id: 110, name: "Manchester United", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/110_manchester_united.png" },
+      { id: 111, name: "Liverpool FC", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/111_liverpool_fc.png" },
+      { id: 112, name: "Arsenal FC", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/112_arsenal_fc.png" },
+      { id: 113, name: "Chelsea FC", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/113_chelsea_fc.png" },
+      { id: 114, name: "Tottenham Hotspur", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/114_tottenham_hotspur.png" },
+      { id: 115, name: "Newcastle United", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/115_newcastle_united.png" },
+      { id: 116, name: "Aston Villa", cat: "europa", desc: "Inglaterra • Premier League", url: "escudos/116_aston_villa.png" },
+      { id: 117, name: "Bayern Múnich", cat: "europa", desc: "Alemania • Bundesliga", url: "escudos/117_bayern_m_nich.svg" },
+      { id: 118, name: "Borussia Dortmund", cat: "europa", desc: "Alemania • Bundesliga", url: "escudos/118_borussia_dortmund.png" },
+      { id: 119, name: "Bayer Leverkusen", cat: "europa", desc: "Alemania • Bundesliga", url: "escudos/119_bayer_leverkusen.png" },
+      { id: 120, name: "RB Leipzig", cat: "europa", desc: "Alemania • Bundesliga", url: "escudos/120_rb_leipzig.png" },
+      { id: 121, name: "Paris Saint-Germain (PSG)", cat: "europa", desc: "Francia • Ligue 1", url: "escudos/121_paris_saint-germain_psg.png" },
+      { id: 122, name: "Olympique de Marsella", cat: "europa", desc: "Francia • Ligue 1", url: "escudos/122_olympique_de_marsella.svg" },
+      { id: 123, name: "Olympique de Lyon", cat: "europa", desc: "Francia • Ligue 1", url: "escudos/123_olympique_de_lyon.png" },
+      { id: 124, name: "AS Mónaco", cat: "europa", desc: "Francia/Mónaco • Ligue 1", url: "escudos/124_as_m_naco.png" },
+      { id: 125, name: "Juventus", cat: "europa", desc: "Italia • Serie A", url: "escudos/125_juventus.png" },
+      { id: 126, name: "Inter de Milán", cat: "europa", desc: "Italia • Serie A", url: "escudos/126_inter_de_mil_n.svg" },
+      { id: 127, name: "AC Milan", cat: "europa", desc: "Italia • Serie A", url: "escudos/127_ac_milan.png" },
+      { id: 128, name: "Napoli", cat: "europa", desc: "Italia • Serie A", url: "escudos/128_napoli.svg" },
+      { id: 129, name: "AS Roma", cat: "europa", desc: "Italia • Serie A", url: "escudos/129_as_roma.png" },
+      { id: 130, name: "SS Lazio", cat: "europa", desc: "Italia • Serie A", url: "escudos/130_ss_lazio.png" },
+      { id: 131, name: "Fiorentina", cat: "europa", desc: "Italia • Serie A", url: "escudos/131_fiorentina.png" },
+      { id: 132, name: "Atalanta", cat: "europa", desc: "Italia • Serie A", url: "escudos/132_atalanta.png" },
+      { id: 133, name: "SL Benfica", cat: "europa", desc: "Portugal • Primeira Liga", url: "escudos/133_sl_benfica.png" },
+      { id: 134, name: "FC Porto", cat: "europa", desc: "Portugal • Primeira Liga", url: "escudos/134_fc_porto.png" },
+      { id: 135, name: "Sporting de Lisboa", cat: "europa", desc: "Portugal • Primeira Liga", url: "escudos/135_sporting_de_lisboa.png" },
+      { id: 136, name: "Ajax", cat: "europa", desc: "Países Bajos • Eredivisie", url: "escudos/136_ajax.png" },
+      { id: 137, name: "PSV Eindhoven", cat: "europa", desc: "Países Bajos • Eredivisie", url: "escudos/137_psv_eindhoven.png" },
+      { id: 138, name: "Feyenoord", cat: "europa", desc: "Países Bajos • Eredivisie", url: "escudos/138_feyenoord.png" },
+      { id: 139, name: "Celtic FC", cat: "europa", desc: "Escocia • Scottish Premiership", url: "escudos/139_celtic_fc.png" },
+      { id: 140, name: "Rangers FC", cat: "europa", desc: "Escocia • Scottish Premiership", url: "escudos/140_rangers_fc.png" },
+      { id: 141, name: "Galatasaray", cat: "europa", desc: "Turquía • Süper Lig", url: "escudos/141_galatasaray.png" },
+      { id: 142, name: "Fenerbahçe", cat: "europa", desc: "Turquía • Süper Lig", url: "escudos/142_fenerbah_e.png" },
+      { id: 143, name: "Beşiktaş", cat: "europa", desc: "Turquía • Süper Lig", url: "escudos/143_be_ikta.png" },
+      { id: 144, name: "Olympiacos", cat: "europa", desc: "Grecia • Superliga", url: "escudos/144_olympiacos.png" },
+      { id: 145, name: "Shakhtar Donetsk", cat: "europa", desc: "Ucrania • Liga Premier", url: "escudos/145_shakhtar_donetsk.png" },
+      { id: 146, name: "Dinamo de Kiev", cat: "europa", desc: "Ucrania • Liga Premier", url: "escudos/146_dinamo_de_kiev.svg" },
+      { id: 147, name: "Estrella Roja de Belgrado", cat: "europa", desc: "Serbia • SuperLiga", url: "escudos/147_estrella_roja_de_belgrado.png" },
+      { id: 148, name: "RSC Anderlecht", cat: "europa", desc: "Bélgica • Pro League", url: "escudos/148_rsc_anderlecht.png" },
+      { id: 149, name: "Club Brujas", cat: "europa", desc: "Bélgica • Pro League", url: "escudos/149_club_brujas.png" },
+      { id: 150, name: "Red Bull Salzburgo", cat: "europa", desc: "Austria • Bundesliga", url: "escudos/150_red_bull_salzburgo.png" }
+    ];
+
+    /* -------------------------------------------------------------
+       ESTADO DE LA APLICACIÓN Y PERSISTENCIA (LOCALSTORAGE)
+    ------------------------------------------------------------- */
+    const STORAGE_KEY = 'belen_football_shields_progress_v1';
+    
+    // answersState: { [teamId]: 'correct' | 'wrong' | null }
+    let answersState = {};
+    let currentView = 'flashcard'; // 'flashcard' | 'album'
+    let currentCategoryFilter = 'all';
+    let currentFilteredList = [...TEAMS_DATABASE];
+    let currentFlashcardIndex = 0;
+    let isRevealed = false;
+    let albumCategoryFilter = 'all';
+
+    // Cargar progreso al iniciar
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          answersState = JSON.parse(saved);
+        } else {
+          answersState = {};
+        }
+      } catch (e) {
+        answersState = {};
+      }
+    }
+
+    // Guardar progreso
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(answersState));
+      } catch (e) {}
+      updateMetrics();
+    }
+
+    /* Fallback súper seguro para imágenes que no carguen: genera un sticker heráldico SVG */
+    function handleImageFallback(imgElem) {
+      const teamId = imgElem.getAttribute('data-team-id');
+      const team = TEAMS_DATABASE.find(t => t.id == teamId) || { name: 'Escudo' };
+      const initials = team.name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 3).join('').toUpperCase();
+      
+      const svgPlaceholder = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100%" height="100%">
+          <defs>
+            <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f472b6" />
+              <stop offset="100%" stop-color="#fb7185" />
+            </linearGradient>
+          </defs>
+          <path d="M50 5 L90 20 L90 70 C90 95 50 115 50 115 C50 115 10 95 10 70 L10 20 Z" fill="url(#pinkGrad)" stroke="#fff" stroke-width="4" />
+          <path d="M50 12 L83 24 L83 68 C83 88 50 105 50 105 C50 105 17 88 17 68 L17 24 Z" fill="#fff" opacity="0.25" />
+          <text x="50" y="55" font-family="'Fredoka', sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="central">${initials}</text>
+          <text x="50" y="80" font-family="'Quicksand', sans-serif" font-size="16" fill="#ffffff" text-anchor="middle">⚽✨</text>
+        </svg>
+      `;
+      imgElem.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgPlaceholder);
+      imgElem.onerror = null; // Evitar loop
+    }
+
+    /* -------------------------------------------------------------
+       DISPARADOR DE CONFETI COQUETTE
+    ------------------------------------------------------------- */
+    function fireCuteConfetti() {
+      if (typeof confetti !== 'function') return;
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.65 },
+        colors: ['#f472b6', '#fb7185', '#c084fc', '#fde047', '#34d399', '#ffffff']
+      });
+    }
+
+    /* -------------------------------------------------------------
+       VISTA FLASHCARD: FUNCIONALIDAD
+    ------------------------------------------------------------- */
+    function updateFlashcardList() {
+      if (currentCategoryFilter === 'all') {
+        currentFilteredList = [...TEAMS_DATABASE];
+      } else {
+        currentFilteredList = TEAMS_DATABASE.filter(t => t.cat === currentCategoryFilter);
+      }
+      if (currentFlashcardIndex >= currentFilteredList.length) {
+        currentFlashcardIndex = 0;
+      }
+      renderCurrentFlashcard();
+    }
+
+    function changeFlashcardCategory(cat) {
+      AudioEngine.playPop();
+      currentCategoryFilter = cat;
+      currentFlashcardIndex = 0;
+      updateFlashcardList();
+    }
+
+    function shuffleCurrentList() {
+      AudioEngine.playPop();
+      for (let i = currentFilteredList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentFilteredList[i], currentFilteredList[j]] = [currentFilteredList[j], currentFilteredList[i]];
+      }
+      currentFlashcardIndex = 0;
+      renderCurrentFlashcard();
+    }
+
+    function renderCurrentFlashcard() {
+      if (currentFilteredList.length === 0) return;
+      const team = currentFilteredList[currentFlashcardIndex];
+      isRevealed = false;
+
+      // Ocultar info y mostrar mensaje tap
+      document.getElementById('hiddenNameBox').classList.remove('hidden');
+      document.getElementById('revealedNameBox').classList.add('hidden');
+      document.getElementById('revealedNameBox').classList.remove('flex');
+
+      // Actualizar datos del escudo
+      const img = document.getElementById('cardShieldImg');
+      img.setAttribute('data-team-id', team.id);
+      img.src = team.url;
+
+      document.getElementById('cardShieldName').textContent = team.name;
+      document.getElementById('cardShieldDetails').textContent = team.desc;
+      document.getElementById('currentCardIndexBadge').textContent = `Escudo #${currentFlashcardIndex + 1} de ${currentFilteredList.length}`;
+
+      // Etiqueta de categoría
+      const catTag = document.getElementById('cardCategoryTag');
+      const catNames = {
+        argentina: '🇦🇷 Club Argentino',
+        latino: '🌴 Club Latinoamericano',
+        seleccion: '🌍 Selección Nacional',
+        europa: '🏰 Club Europeo'
+      };
+      catTag.textContent = catNames[team.cat] || 'Fútbol';
+
+      // Badge de estado previo
+      const statusBadge = document.getElementById('cardStatusBadge');
+      const status = answersState[team.id];
+      if (status === 'correct') {
+        statusBadge.textContent = '✅ Adivinado';
+        statusBadge.className = 'bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200';
+      } else if (status === 'wrong') {
+        statusBadge.textContent = '❌ Para repasar';
+        statusBadge.className = 'bg-rose-100 text-rose-700 px-2.5 py-0.5 rounded-full border border-rose-200';
+      } else {
+        statusBadge.textContent = '⏳ Sin responder';
+        statusBadge.className = 'bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-full border border-amber-200';
+      }
+    }
+
+    function toggleRevealCard() {
+      if (!isRevealed) {
+        AudioEngine.playPop();
+        isRevealed = true;
+        document.getElementById('hiddenNameBox').classList.add('hidden');
+        document.getElementById('revealedNameBox').classList.remove('hidden');
+        document.getElementById('revealedNameBox').classList.add('flex');
+      }
+    }
+
+    function handleAnswer(isCorrect) {
+      if (currentFilteredList.length === 0) return;
+      const team = currentFilteredList[currentFlashcardIndex];
+
+      if (isCorrect) {
+        answersState[team.id] = 'correct';
+        AudioEngine.playSuccess();
+        fireCuteConfetti();
+      } else {
+        answersState[team.id] = 'wrong';
+        AudioEngine.playMistake();
+      }
+
+      saveProgress();
+
+      // Transición automática al siguiente tras un pequeño intervalo
+      setTimeout(() => {
+        navigateFlashcard(1);
+      }, 350);
+    }
+
+    function navigateFlashcard(direction) {
+      AudioEngine.playPop();
+      currentFlashcardIndex += direction;
+      if (currentFlashcardIndex >= currentFilteredList.length) {
+        currentFlashcardIndex = 0; // Vuelve al inicio del loop
+      } else if (currentFlashcardIndex < 0) {
+        currentFlashcardIndex = currentFilteredList.length - 1;
+      }
+      renderCurrentFlashcard();
+    }
+
+    /* -------------------------------------------------------------
+       VISTA ÁLBUM / CUADRÍCULA (150 ESCUDOS)
+    ------------------------------------------------------------- */
+    function filterAlbumCategory(cat, btnElem) {
+      AudioEngine.playPop();
+      albumCategoryFilter = cat;
+      document.querySelectorAll('.album-cat-btn').forEach(btn => {
+        btn.classList.remove('bg-pink-500', 'text-white', 'border-pink-500', 'shadow-sm');
+        btn.classList.add('bg-pink-50', 'text-pink-700', 'border-pink-200');
+      });
+      btnElem.classList.remove('bg-pink-50', 'text-pink-700', 'border-pink-200');
+      btnElem.classList.add('bg-pink-500', 'text-white', 'border-pink-500', 'shadow-sm');
+      renderAlbumGrid();
+    }
+
+    function renderAlbumGrid() {
+      const container = document.getElementById('shieldsGrid');
+      const emptyMsg = document.getElementById('emptyFilterMsg');
+      const statusFilter = document.getElementById('albumStatusSelect').value;
+
+      container.innerHTML = '';
+
+      let list = TEAMS_DATABASE;
+      if (albumCategoryFilter !== 'all') {
+        list = list.filter(t => t.cat === albumCategoryFilter);
+      }
+
+      if (statusFilter !== 'all') {
+        list = list.filter(t => {
+          const s = answersState[t.id];
+          if (statusFilter === 'correct') return s === 'correct';
+          if (statusFilter === 'wrong') return s === 'wrong';
+          if (statusFilter === 'pending') return !s;
+          return true;
+        });
+      }
+
+      if (list.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      } else {
+        emptyMsg.classList.add('hidden');
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      list.forEach(team => {
+        const state = answersState[team.id];
+        let borderClass = 'border-pink-200 bg-white hover:border-pink-400';
+        let badgeState = '';
+
+        if (state === 'correct') {
+          borderClass = 'border-emerald-300 bg-emerald-50/40 hover:border-emerald-500 shadow-sm';
+          badgeState = '<span class="absolute top-2 right-2 text-sm bg-white rounded-full p-0.5 shadow-xs" title="¡Adivinado!">✅</span>';
+        } else if (state === 'wrong') {
+          borderClass = 'border-rose-300 bg-rose-50/40 hover:border-rose-500 shadow-sm';
+          badgeState = '<span class="absolute top-2 right-2 text-sm bg-white rounded-full p-0.5 shadow-xs" title="Para repasar">❌</span>';
+        }
+
+        const card = document.createElement('div');
+        card.className = `relative p-3 rounded-2xl border-2 transition-all flex flex-col items-center justify-between group ${borderClass}`;
+        
+        card.innerHTML = `
+          ${badgeState}
+          <div class="text-[10px] font-bold text-pink-400 mb-1">#${team.id}</div>
+          
+          <!-- Escudo -->
+          <div class="w-20 h-20 sm:w-24 sm:h-24 p-2 flex items-center justify-center my-1 bg-white rounded-xl border border-pink-100 shadow-inner">
+            <img src="${team.url}" 
+                 data-team-id="${team.id}" 
+                 alt="${team.name}" 
+                 class="max-w-full max-h-full object-contain filter drop-shadow-sm transition-transform group-hover:scale-105"
+                 onerror="handleImageFallback(this)">
+          </div>
+
+          <!-- Nombre con revelación interactiva -->
+          <div class="w-full text-center mt-1.5 min-h-[38px] flex flex-col justify-center">
+            <p id="albumName-${team.id}" class="text-xs font-bold text-stone-800 line-clamp-2 leading-tight hidden">
+              ${team.name}
+            </p>
+            <button onclick="toggleAlbumItemName(${team.id})" id="albumBtnName-${team.id}" class="text-[11px] font-bold text-pink-500 hover:text-pink-700 py-0.5 px-2 bg-pink-50 rounded-lg border border-pink-200">
+              Ver nombre 🤫
+            </button>
+          </div>
+
+          <!-- Botones de marcado rápido Tilde / Cruz -->
+          <div class="flex items-center gap-1.5 w-full mt-2 pt-2 border-t border-pink-100 justify-center">
+            <button onclick="setAlbumTeamStatus(${team.id}, false)" 
+                    title="No me acordaba"
+                    class="p-1 px-2.5 rounded-lg text-xs font-bold transition bg-rose-100 hover:bg-rose-200 text-rose-700 active:scale-90 border border-rose-200">
+              ❌
+            </button>
+            <button onclick="setAlbumTeamStatus(${team.id}, true)" 
+                    title="¡Lo sabía!"
+                    class="p-1 px-2.5 rounded-lg text-xs font-bold transition bg-emerald-100 hover:bg-emerald-200 text-emerald-700 active:scale-90 border border-emerald-200">
+              ✅
+            </button>
+          </div>
+        `;
+
+        fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    function toggleAlbumItemName(id) {
+      AudioEngine.playPop();
+      const p = document.getElementById(`albumName-${id}`);
+      const btn = document.getElementById(`albumBtnName-${id}`);
+      if (p && btn) {
+        p.classList.remove('hidden');
+        btn.classList.add('hidden');
+      }
+    }
+
+    function setAlbumTeamStatus(id, isCorrect) {
+      if (isCorrect) {
+        answersState[id] = 'correct';
+        AudioEngine.playSuccess();
+        fireCuteConfetti();
+      } else {
+        answersState[id] = 'wrong';
+        AudioEngine.playMistake();
+      }
+      saveProgress();
+      renderAlbumGrid();
+      // Si la tarjeta actual en flashcard coincide, refrescarla
+      renderCurrentFlashcard();
+    }
+
+    /* -------------------------------------------------------------
+       MÉTRICAS & PROGRESO
+    ------------------------------------------------------------- */
+    function updateMetrics() {
+      let correct = 0;
+      let wrong = 0;
+
+      let argCount = 0;
+      let latCount = 0;
+      let selCount = 0;
+      let eurCount = 0;
+
+      TEAMS_DATABASE.forEach(t => {
+        const s = answersState[t.id];
+        if (s === 'correct') {
+          correct++;
+          if (t.cat === 'argentina') argCount++;
+          if (t.cat === 'latino') latCount++;
+          if (t.cat === 'seleccion') selCount++;
+          if (t.cat === 'europa') eurCount++;
+        } else if (s === 'wrong') {
+          wrong++;
+        }
+      });
+
+      const totalDone = correct + wrong;
+      const percentage = Math.round((correct / TEAMS_DATABASE.length) * 100);
+
+      // Header metrics
+      document.getElementById('headerCorrectCount').textContent = correct;
+      document.getElementById('headerWrongCount').textContent = wrong;
+      document.getElementById('headerPercent').textContent = `${percentage}%`;
+      document.getElementById('topProgressBar').style.width = `${(totalDone / TEAMS_DATABASE.length) * 100}%`;
+
+      // Sub-metrics en Álbum
+      document.getElementById('statArg').textContent = `${argCount} / 40`;
+      document.getElementById('statLat').textContent = `${latCount} / 25`;
+      document.getElementById('statSel').textContent = `${selCount} / 35`;
+      document.getElementById('statEur').textContent = `${eurCount} / 50`;
+    }
+
+    /* -------------------------------------------------------------
+       CAMBIO DE VISTAS (FLASHCARD vs ÁLBUM)
+    ------------------------------------------------------------- */
+    function switchView(view) {
+      AudioEngine.playPop();
+      currentView = view;
+      const flashView = document.getElementById('flashcardView');
+      const albumView = document.getElementById('albumView');
+      const tabFlash = document.getElementById('tabFlashcardBtn');
+      const tabAlbum = document.getElementById('tabAlbumBtn');
+
+      if (view === 'flashcard') {
+        flashView.classList.remove('hidden');
+        albumView.classList.add('hidden');
+
+        tabFlash.className = "px-5 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md";
+        tabAlbum.className = "px-5 py-2 rounded-xl font-bold text-sm text-pink-600 hover:bg-pink-50 transition-all flex items-center gap-2";
+        renderCurrentFlashcard();
+      } else {
+        flashView.classList.add('hidden');
+        albumView.classList.remove('hidden');
+
+        tabAlbum.className = "px-5 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md";
+        tabFlash.className = "px-5 py-2 rounded-xl font-bold text-sm text-pink-600 hover:bg-pink-50 transition-all flex items-center gap-2";
+        renderAlbumGrid();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       MODAL DE REINICIO
+    ------------------------------------------------------------- */
+    function openResetModal() {
+      AudioEngine.playPop();
+      document.getElementById('resetModal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      AudioEngine.playPop();
+      document.getElementById('resetModal').classList.add('hidden');
+    }
+
+    function confirmResetProgress() {
+      answersState = {};
+      saveProgress();
+      closeResetModal();
+      renderCurrentFlashcard();
+      if (currentView === 'album') {
+        renderAlbumGrid();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       SOPORTE DE TECLADO PARA MODO FLASHCARD
+       - Flecha izquierda o tecla 1: ❌ Cruz
+       - Flecha derecha o tecla 2: ✅ Tilde
+       - Barra espaciadora: Revelar nombre
+    ------------------------------------------------------------- */
+    window.addEventListener('keydown', (e) => {
+      if (currentView !== 'flashcard') return;
+      if (document.getElementById('resetModal').classList.contains('hidden') === false) return;
+
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        toggleRevealCard();
+      } else if (e.key === 'ArrowLeft' || e.key === '1') {
+        e.preventDefault();
+        handleAnswer(false);
+      } else if (e.key === 'ArrowRight' || e.key === '2') {
+        e.preventDefault();
+        handleAnswer(true);
+      }
+    });
+
+    /* -------------------------------------------------------------
+       INICIALIZACIÓN AL CARGAR LA PÁGINA
+    ------------------------------------------------------------- */
+    window.onload = function() {
+      loadProgress();
+      updateFlashcardList();
+      updateMetrics();
+    };
+  </script>
+</body>
+</html>
